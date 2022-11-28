@@ -11,24 +11,24 @@ import (
 var signature = []byte("myPrivateSignateure")
 
 type User struct {
-	ID        int
-	Name      string
-	Email     string
-	Password  string
-	NoHp      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	NoHp      string    `json:"no_hp"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type UserRegister struct {
-	Name     string
-	Email    string
-	Password string
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserLogin struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func NewUser(email, name, password string) (*User, error) {
