@@ -1,12 +1,20 @@
 package domain
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type Exercise struct {
 	ID          int        `json:"id"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	Questions   []Question `json:"question"`
+}
+
+type CreateExerciseInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 type Question struct {
@@ -32,4 +40,21 @@ type Answer struct {
 	Answer     string    `json:"answer"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+func NewExercise(title, description string) (*Exercise, error) {
+	if title == "" {
+		return nil, errors.New("title is required")
+	}
+
+	if description == "" {
+		return nil, errors.New("description is required")
+	}
+
+	exercise := &Exercise{
+		Title:       title,
+		Description: description,
+	}
+
+	return exercise, nil
 }

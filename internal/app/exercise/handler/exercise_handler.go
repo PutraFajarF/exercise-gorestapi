@@ -19,6 +19,35 @@ func NewExerciseHandler(db *gorm.DB) *ExerciseHandler {
 	return &ExerciseHandler{db: db}
 }
 
+func (eh ExerciseHandler) CreateExercise(c *gin.Context) {
+	var newExercise domain.CreateExerciseInput
+
+	if err := c.ShouldBind(&newExercise); err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid body",
+		})
+	}
+
+	exercise, err := domain.NewExercise(newExercise.Title, newExercise.Description)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := eh.db.Create(exercise).Error; err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{
+		"message": "Success created exercise",
+	})
+}
+
 func (eh ExerciseHandler) GetExerciseByID(c *gin.Context) {
 	idString := c.Param("id")
 	id, err := strconv.Atoi(idString)
