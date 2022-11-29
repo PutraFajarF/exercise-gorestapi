@@ -32,6 +32,16 @@ type Question struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
+type CreateQuestionInput struct {
+	Body          string `json:"body"`
+	OptionA       string `json:"option_a"`
+	OptionB       string `json:"option_b"`
+	OptionC       string `json:"option_c"`
+	OptionD       string `json:"option_d"`
+	CorrectAnswer string `json:"correct_answer"`
+	Score         int    `json:"score"`
+}
+
 type Answer struct {
 	ID         int       `json:"id"`
 	ExerciseID int       `json:"exercise_id"`
@@ -57,4 +67,48 @@ func NewExercise(title, description string) (*Exercise, error) {
 	}
 
 	return exercise, nil
+}
+
+func NewQuestion(exerciseID, score, creatorID int, body, a, b, c, d, correctAnswer string) (*Question, error) {
+	if body == "" {
+		return nil, errors.New("body is required")
+	}
+
+	if a == "" {
+		return nil, errors.New("option a is required")
+	}
+
+	if b == "" {
+		return nil, errors.New("option b is required")
+	}
+
+	if c == "" {
+		return nil, errors.New("option c is required")
+	}
+
+	if d == "" {
+		return nil, errors.New("option d is required")
+	}
+
+	if correctAnswer == "" {
+		return nil, errors.New("correct answer is required")
+	}
+
+	if score == 0 {
+		return nil, errors.New("score must be more than 0")
+	}
+
+	question := &Question{
+		ExerciseID:    exerciseID,
+		Body:          body,
+		OptionA:       a,
+		OptionB:       b,
+		OptionC:       c,
+		OptionD:       d,
+		CorrectAnswer: correctAnswer,
+		Score:         score,
+		CreatorID:     creatorID,
+	}
+
+	return question, nil
 }

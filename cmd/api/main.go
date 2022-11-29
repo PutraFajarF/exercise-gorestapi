@@ -25,6 +25,7 @@ func main() {
 	r.GET("/exercises/:id/score", middleware.WithAuh(), exerciseHandler.GetScore)
 
 	r.POST("/exercises", middleware.WithAuh(), exerciseHandler.CreateExercise)
+	r.POST("/exercises/:id/questions", middleware.WithAuh(), exerciseHandler.CreateQuestion)
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
 	r.Run(":1234")

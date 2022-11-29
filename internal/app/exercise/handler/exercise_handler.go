@@ -132,3 +132,51 @@ func (s *Score) Inc(value int) {
 	defer s.mu.Unlock()
 	s.total += value
 }
+
+func (eh ExerciseHandler) CreateQuestion(c *gin.Context) {
+	idString := c.Param("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid exercise id",
+		})
+		return
+	}
+
+	var exercise domain.Exercise
+	err = eh.db.Where("id = ?", id).Preload("Questions").Take(&exercise).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, map[string]string{
+			"message": "exercise data not found",
+		})
+		return
+	}
+
+	var inputQuestion domain.CreateQuestionInput
+	if err := c.ShouldBind(&inputQuestion); err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Invalid body request",
+		})
+	}
+
+	creatorID := c.Request.Context().Value("user_id").(int)
+
+	question, err := domain.NewQuestion(id, inputQuestion.Score, creatorID, inputQuestion.Body, inputQuestion.OptionA, inputQuestion.OptionB, inputQuestion.OptionC, inputQuestion.OptionD, inputQuestion.CorrectAnswer)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := eh.db.Create(question).Error; err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{
+		"message": "success created question",
+	})
+}
