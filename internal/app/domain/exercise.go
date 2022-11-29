@@ -52,6 +52,10 @@ type Answer struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+type CreateAnswerInput struct {
+	Answer string `json:"answer"`
+}
+
 func NewExercise(title, description string) (*Exercise, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
@@ -111,4 +115,19 @@ func NewQuestion(exerciseID, score, creatorID int, body, a, b, c, d, correctAnsw
 	}
 
 	return question, nil
+}
+
+func NewAnswer(exerciseID, questionID, userID int, answer string) (*Answer, error) {
+	if answer == "" {
+		return nil, errors.New("answer is required")
+	}
+
+	newAnswer := &Answer{
+		ExerciseID: exerciseID,
+		QuestionID: questionID,
+		UserID:     userID,
+		Answer:     answer,
+	}
+
+	return newAnswer, nil
 }

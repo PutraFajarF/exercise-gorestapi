@@ -26,6 +26,8 @@ func main() {
 
 	r.POST("/exercises", middleware.WithAuh(), exerciseHandler.CreateExercise)
 	r.POST("/exercises/:id/questions", middleware.WithAuh(), exerciseHandler.CreateQuestion)
+	r.POST("/exercises/:id/questions/:qids/answer", middleware.WithAuh(), exerciseHandler.CreateAnswer)
+
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
 	r.Run(":1234")

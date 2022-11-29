@@ -180,3 +180,70 @@ func (eh ExerciseHandler) CreateQuestion(c *gin.Context) {
 		"message": "success created question",
 	})
 }
+
+func (eh ExerciseHandler) CreateAnswer(c *gin.Context) {
+	idString := c.Param("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid exercise id",
+		})
+		return
+	}
+
+	var exercise domain.Exercise
+	err = eh.db.Where("id = ?", id).Preload("Questions").Take(&exercise).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, map[string]string{
+			"message": "exercise data not found",
+		})
+		return
+	}
+
+	questionIDString := c.Param("qids")
+	qid, err := strconv.Atoi(questionIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid question id",
+		})
+		return
+	}
+
+	var question domain.Question
+	err = eh.db.Where("id = ? AND exercise_id = ?", qid, id).Take(&question).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, map[string]string{
+			"message": "question data not found",
+		})
+		return
+	}
+
+	var createAnswer domain.CreateAnswerInput
+	if err := c.ShouldBind(&createAnswer); err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid body",
+		})
+		return
+	}
+
+	userID := c.Request.Context().Value("user_id").(int)
+
+	answer, err := domain.NewAnswer(id, qid, userID, createAnswer.Answer)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := eh.db.Create(answer).Error; err != nil {
+		c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{
+		"message": "success created answer",
+	})
+}
